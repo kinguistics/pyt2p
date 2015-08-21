@@ -33,7 +33,7 @@ def convert_allowables(allowables):
     return alignment_scores
 
 if __name__ == "__main__":
-    corpus, allowables = corpus.load_corpus_and_allowables()
+    corpus, allowables = corpus.load_corpus_and_allowables(stress='collapsed')
 
     ab_pairs = convert_corpus(corpus)
 
@@ -48,8 +48,8 @@ if __name__ == "__main__":
     em.run_EM()
 
     final_alignment_scores = em.alignment_scores[-1]
-    with open('alignment_scores.pickle','w') as fout:
+    with open('alignment_scores_collapsed.pickle','w') as fout:
         pickle.dump(final_alignment_scores, fout)
 
-    with open('em.pickle','w') as fout:
+    with open('em_collapsed.pickle','w') as fout:
         pickle.dump(em, fout)

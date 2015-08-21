@@ -1,9 +1,17 @@
 import re
 import pickle
-from nltk.corpus import cmudict
+
+
 
 ALLOWABLES_FNAME = 'allowables.pickle'
 STRESS_OPTIONS = ['full','collapsed','none']
+
+def load_cmu_pickle():
+    with open('cmudict.pickle') as f:
+        cmudict = pickle.load(f)
+    return cmudict
+
+cmudict = load_cmu_pickle()
 
 def collapse_stress(s):
     try: s = re.sub('2','1',s)
@@ -27,7 +35,9 @@ def load_corpus(corpus='cmudict', stress='none'):
     if stress not in STRESS_OPTIONS:
         raise TypeError
 
-    cmu = cmudict.dict()
+    try: cmu = cmudict.dict()
+    except AttributeError:
+        cmu = cmudict
 
     if stress == 'full':
         return cmu
