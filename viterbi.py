@@ -250,6 +250,10 @@ class ViterbiAligner(object):
         self.grid = grid
 
     def align(self):
+        """
+        calculate all possible alignment paths of A and B, with the given
+        alignment scores
+        """
         # initialize the first cell to have an empty path, so we have something
         #   to append to at each of its neighbors
         startcell = self.grid[0][0]

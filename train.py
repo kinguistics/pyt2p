@@ -1,5 +1,6 @@
 import pickle
 import random
+import argparse
 
 import corpus
 import viterbi
@@ -33,12 +34,18 @@ def convert_allowables(allowables):
     return alignment_scores
 
 if __name__ == "__main__":
-    corpus, allowables = corpus.load_corpus_and_allowables(stress='collapsed')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--stress', default='none', choices=['none','full','collapsed'])
+    parser.add_argument('--subset', action='store_true')
+    args = parser.parse_args()
+
+    corpus, allowables = corpus.load_corpus_and_allowables(stress=args.stress)
 
     ab_pairs = convert_corpus(corpus)
 
-    # test with 1% of the corpus
-    #ab_pairs = random.sample(ab_pairs, len(ab_pairs)/1000)
+    if args.subset:
+        # test with 0.1% of the corpus
+        ab_pairs = random.sample(ab_pairs, len(ab_pairs)/1000)
 
     ab_pairs.sort(cmp = lambda x,y: cmp(x[0], y[0]))
     alignment_scores = convert_allowables(allowables)
@@ -48,8 +55,14 @@ if __name__ == "__main__":
     em.run_EM()
 
     final_alignment_scores = em.alignment_scores[-1]
-    with open('alignment_scores_collapsed.pickle','w') as fout:
+    alignment_scores_fname = 'alignment_scores_%s.pickle' % args.stress
+    if args.subset:
+        alignment_scores_fname = alignment_scores_fname.replace('.pickle','_subset.pickle')
+    with open(alignment_scores_fname,'w') as fout:
         pickle.dump(final_alignment_scores, fout)
 
-    with open('em_collapsed.pickle','w') as fout:
+    em_fname = 'em_%s.pickle' % args.stress
+    if args.subset:
+        em_fname = em_fname.replace('.pickle','_subset.pickle')
+    with open(em_fname,'w') as fout:
         pickle.dump(em, fout)

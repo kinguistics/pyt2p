@@ -1,8 +1,7 @@
 import re
 import pickle
 
-
-
+DICTIONARY_FNAME = 'cmudict.pickle'
 ALLOWABLES_FNAME = 'allowables.pickle'
 STRESS_OPTIONS = ['full','collapsed','none']
 
@@ -84,9 +83,3 @@ def load_allowables(stress='none'):
                     continue
                 allowables_unstressed[letter].append(phone)
         return allowables_unstressed
-
-### MOVE THIS TO TRAIN.PY ###
-
-
-def choose_pronunciation(corpus, word):
-    return corpus[word][0]
