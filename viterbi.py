@@ -1,4 +1,5 @@
 import pickle
+from time import time
 try:
     '''numpy's log provides more float precision'''
     from numpy import log, exp, isinf
@@ -386,6 +387,8 @@ class ViterbiEM(object):
         ### DEBUGGING
         self.pseudocounts = []
         self.likelihood = []
+        self.logfile = open('em_log.txt','w')
+
 
     def run_EM(self):
         for iteration in range(self.max_iterations):
@@ -417,7 +420,12 @@ class ViterbiEM(object):
         all_word_paths = []
         likelihood = log(0)
 
-        for ab_pair in self.ab_pairs:
+        positions_to_log = len(self.ab_pairs) / 100
+
+        for ab_idx,ab_pair in enumerate(self.ab_pairs):
+            if not ab_idx % positions_to_log:
+                self.logfile.write('\t'.join([str(s) for s in time(), ab_idx, ab_pair]))
+                self.logfile.flush()
             a,b = ab_pair
 
             print self.iteration_number,a,b
