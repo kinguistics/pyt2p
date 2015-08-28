@@ -3,7 +3,8 @@ import random
 import argparse
 
 import corpus
-import viterbi
+#import viterbi
+from viterbi import ViterbiEM
 
 '''
     allow a maximum letter limit, to avoid wasting tons of time and memory on
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     ab_pairs.sort(cmp = lambda x,y: cmp(x[0], y[0]))
     alignment_scores = convert_allowables(allowables)
 
-    em = viterbi.ViterbiEM(ab_pairs, alignment_scores, max_iterations=100)
+    em = ViterbiEM(ab_pairs, alignment_scores, max_iterations=100)
     #em.e_step(alignment_scores)
     em.run_EM()
 
@@ -65,4 +66,5 @@ if __name__ == "__main__":
     if args.subset:
         em_fname = em_fname.replace('.pickle','_subset.pickle')
     with open(em_fname,'w') as fout:
-        pickle.dump(em, fout)
+        pickle.dump(em.alignment_scores, fout)
+        pickle.dump(em.likelihood, fout)

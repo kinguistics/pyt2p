@@ -387,7 +387,9 @@ class ViterbiEM(object):
         ### DEBUGGING
         self.pseudocounts = []
         self.likelihood = []
-        self.logfile = open('em_log.txt','w')
+        self.logfilename = 'em_log.txt'
+        #self.logfile = open('em_log.txt','w')
+        self.logfile = None
 
 
     def run_EM(self):
@@ -424,8 +426,9 @@ class ViterbiEM(object):
 
         for ab_idx,ab_pair in enumerate(self.ab_pairs):
             if not ab_idx % positions_to_log:
-                self.logfile.write('\t'.join([str(s) for s in time(), ab_idx, ab_pair]))
-                self.logfile.flush()
+                self.logfile = open(self.logfilename, 'a')
+                self.logfile.write('\t'.join([str(s) for s in self.iteration_number, time(), ab_idx, ab_pair])+'\n')
+                self.logfile.close()
             a,b = ab_pair
 
             print self.iteration_number,a,b
