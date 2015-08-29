@@ -383,6 +383,7 @@ class ViterbiEM(object):
         self.scores_are_costs = scores_are_costs
 
         self.iteration_number = 0
+        self.converged = False
 
         ### DEBUGGING
         self.pseudocounts = []
@@ -392,8 +393,8 @@ class ViterbiEM(object):
         self.logfile = None
 
 
-    def run_EM(self):
-        for iteration in range(self.max_iterations):
+    def run_EM(self, max_iterations = 100):
+        for iteration in range(max_iterations):
             self.iteration_number += 1
             print "iteration",iteration
             prev_alignment_scores = self.alignment_scores[-1]
@@ -413,6 +414,7 @@ class ViterbiEM(object):
             except IndexError:
                 continue
             if  likelihood_difference < LIKELIHOOD_CHANGE_EPSILON:
+                self.converged = True
                 break
 
             # otherwise, move to the next iteration
