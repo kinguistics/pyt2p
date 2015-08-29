@@ -12,7 +12,32 @@ from viterbi import ViterbiEM
 '''
 MAXIMUM_LETTERS = 22
 
+# window size for letter features
+WINDOW_SIZE = 7
+
 ### FUNCTIONS FOR ALIGNMENT ###
+def train_alignment(stress="none", subset=False):
+    ### load the corpus and dict of allowables
+    pronun_dict, allowables = corpus.load_corpus_and_allowables(stress=stress)
+
+    ### convert corpus and allowables to Viterbi format
+    ab_pairs = convert_corpus(pronun_dict)
+    alignment_scores = convert_allowables(allowables)
+
+    ### are we testing with a subset?
+    if subset:
+        # test with 0.1% of the corpus
+        ab_pairs = random.sample(ab_pairs, len(ab_pairs)/1000)
+
+    ab_pairs.sort(cmp = lambda x,y: cmp(x[0], y[0]))
+
+    # run the Viterbi aligner EM
+    em = ViterbiEM(ab_pairs, alignment_scores, max_iterations=100)
+    #em.e_step(alignment_scores)
+    em.run_EM()
+
+    return em
+
 def convert_corpus(corpus):
     """ convert a pronunciation dictionary like cmudict to a list of
         (word, pronunciation) tuples """
@@ -39,6 +64,14 @@ def convert_allowables(allowables):
 
     return alignment_scores
 
+
+### FUNCTIONS FOR CLASSIFIER ###
+# currently we only support decision trees
+def train_classifier(alignments, window_size=WINDOW_SIZE):
+    raw_features, raw_targets = build_features(alignments, window_size)
+    classifier = None
+    return classifier
+
 if __name__ == "__main__":
     ### parse command-line arguments
     parser = argparse.ArgumentParser()
@@ -46,24 +79,8 @@ if __name__ == "__main__":
     parser.add_argument('--subset', action='store_true')
     args = parser.parse_args()
 
-    ### load the corpus and dict of allowables
-    corpus, allowables = corpus.load_corpus_and_allowables(stress=args.stress)
-
-    ### convert corpus and allowables to Viterbi format
-    ab_pairs = convert_corpus(corpus)
-    alignment_scores = convert_allowables(allowables)
-
-    ### are we testing with a subset?
-    if args.subset:
-        # test with 0.1% of the corpus
-        ab_pairs = random.sample(ab_pairs, len(ab_pairs)/1000)
-
-    ab_pairs.sort(cmp = lambda x,y: cmp(x[0], y[0]))
-
-    # run the Viterbi aligner EM
-    em = ViterbiEM(ab_pairs, alignment_scores, max_iterations=100)
-    #em.e_step(alignment_scores)
-    em.run_EM()
+    # train the ViterbiAligner model
+    em = train_alignment(stress=args.stress, subset=args.subset)
 
     # save the final EM scores
     final_alignment_scores = em.alignment_scores[-1]

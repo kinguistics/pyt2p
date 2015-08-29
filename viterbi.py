@@ -431,7 +431,7 @@ class ViterbiEM(object):
                 self.logfile.close()
             a,b = ab_pair
 
-            print self.iteration_number,a,b
+            #print self.iteration_number,a,b
 
             v = ViterbiAligner(a, b, alignment_scores, self.scores_are_costs)
 
