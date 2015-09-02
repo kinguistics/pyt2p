@@ -179,6 +179,6 @@ if __name__ == "__main__":
         pickle.dump(em.likelihood, fout)
     '''
 
-    alignments = align_all_words(subset=True)
+    alignments = align_all_words()
     with open('all_alignments.pickle','w') as fout:
         pickle.dump(alignments, fout)
