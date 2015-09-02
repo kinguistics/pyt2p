@@ -1,6 +1,8 @@
 import pickle
 import random
 import argparse
+import glob
+import re
 
 import corpus
 #import viterbi
@@ -31,10 +33,28 @@ def train_alignment(stress="none", subset=False):
 
     ab_pairs.sort(cmp = lambda x,y: cmp(x[0], y[0]))
 
-    # run the Viterbi aligner EM
+    # run the Viterbi aligner EM, saving as we go
     em = ViterbiEM(ab_pairs, alignment_scores, max_iterations=100)
-    #em.e_step(alignment_scores)
-    em.run_EM()
+    
+    # check to see if there's one we can resume
+    saved_iteration_fnames = glob.glob('em_iteration*.pickle')
+    if len(saved_iteration_fnames):
+        saved_iterations = [(fname, int(re.sub('\D','',fname))) for fname in saved_iteration_fnames]
+        saved_iterations.sort(cmp=lambda x,y: cmp(x[1],y[1]))
+
+        final_iteration, final_iteration_number = saved_iterations[-1]
+        em.iteration_number = final_iteration_number
+        with open(final_iteration) as f:
+            alignment_scores, likelihood = pickle.load(f)
+            em.alignment_scores = alignment_scores
+            em.likelihood = likelihood
+
+    while True:
+        em.run_EM(1)
+        with open('em_iteration_%s.pickle' % em.iteration_number,'w') as fout:
+            pickle.dump([em.alignment_scores, em.likelihood], fout)
+        if em.converged:
+            break
 
     return em
 
@@ -79,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument('--subset', action='store_true')
     args = parser.parse_args()
 
-    # train the ViterbiAligner model
+    # train the ViterbiAligner model, saving each iteration as we go
     em = train_alignment(stress=args.stress, subset=args.subset)
 
     # save the final EM scores
@@ -89,7 +109,7 @@ if __name__ == "__main__":
         alignment_scores_fname = alignment_scores_fname.replace('.pickle','_subset.pickle')
     with open(alignment_scores_fname,'w') as fout:
         pickle.dump(final_alignment_scores, fout)
-
+    '''
     # save all alignment scores and likelihoods from the final EM
     em_fname = 'em_%s.pickle' % args.stress
     if args.subset:
@@ -97,3 +117,4 @@ if __name__ == "__main__":
     with open(em_fname,'w') as fout:
         pickle.dump(em.alignment_scores, fout)
         pickle.dump(em.likelihood, fout)
+    '''
