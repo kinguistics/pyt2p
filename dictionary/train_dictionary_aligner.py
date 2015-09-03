@@ -153,12 +153,13 @@ def test_allowable_deletion_probs(max_i=10, max_k=10):
 
             alignment_scores = em.alignment_scores[-1]
 
-            ab_subset = random.sample(ab_pairs, len(ab_pairs)/1000)
 
             # test each on 10 subsets
             for k in range(max_k):
                 print p, i, k
 
+                ab_subset = random.sample(ab_pairs, len(ab_pairs)/1000)
+                
                 alignments = []
                 counts = defaultdict(int)
                 for a,b in ab_subset:

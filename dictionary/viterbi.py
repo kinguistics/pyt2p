@@ -421,7 +421,7 @@ class ViterbiEM(object):
                 likelihood_change = likelihood_difference / exp(self.likelihood[-2])
             except IndexError:
                 continue
-            if  likelihood_difference < LIKELIHOOD_CHANGE_EPSILON:
+            if  likelihood_change < LIKELIHOOD_CHANGE_EPSILON:
                 self.converged = True
                 break
 

@@ -61,7 +61,7 @@ def convert_dictionary(pronun_dictionary):
     return ab_pairs
 
 def load_cmu_pickle():
-    with open('cmudict.pickle') as f:
+    with open('%s/cmudict.pickle' % BASE_DIRECTORY) as f:
         cmudict = pickle.load(f)
     return cmudict
 
