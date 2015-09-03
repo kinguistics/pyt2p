@@ -369,7 +369,8 @@ class ViterbiAligner(object):
 class ViterbiEM(object):
     def __init__(self, ab_pairs,
                        alignment_scores,
-                       max_iterations=5,
+                       max_iterations=100,
+                       model_name='',
                        verbose=True,
                        logging_filename=None):
         self.ab_pairs = ab_pairs
@@ -378,6 +379,8 @@ class ViterbiEM(object):
             provided as an argument '''
         self.alignment_scores = [alignment_scores]
         self.max_iterations = max_iterations
+
+        self.model_name = model_name
 
         self.iteration_number = 0
         self.likelihood = []
@@ -395,7 +398,11 @@ class ViterbiEM(object):
     def run_EM(self, max_iterations = 100):
         for iteration in range(max_iterations):
             self.iteration_number += 1
-            print "iteration",iteration
+
+            try: last_likelihood = self.likelihood[-1]
+            except: last_likelihood = None
+            print "iteration",self.iteration_number, last_likelihood
+
             prev_alignment_scores = self.alignment_scores[-1]
 
             # get all the alignment paths based on the current scores
@@ -409,7 +416,9 @@ class ViterbiEM(object):
             if prev_alignment_scores == new_alignment_scores:
                 break
             # or if we're close enough
-            try: likelihood_difference = abs(self.likelihood[-1] - self.likelihood[-2])
+            try:
+                likelihood_difference = exp(self.likelihood[-1]) - exp(self.likelihood[-2])
+                likelihood_change = likelihood_difference / exp(self.likelihood[-2])
             except IndexError:
                 continue
             if  likelihood_difference < LIKELIHOOD_CHANGE_EPSILON:
@@ -436,7 +445,7 @@ class ViterbiEM(object):
 
             #print self.iteration_number,a,b
 
-            v = ViterbiAligner(a, b, alignment_scores, self.scores_are_costs)
+            v = ViterbiAligner(a, b, alignment_scores)
 
             word_paths = []
             aligned_paths = v.get_all_paths()
@@ -517,3 +526,19 @@ class ViterbiEM(object):
                 pseudoprobs[a_element][b_element] = b_element_prob
 
         return pseudoprobs
+
+    def save(self, filename):
+        model = {'alignment_scores' : self.alignment_scores,
+                 'likelihood' : self.likelihood,
+                 'iteration_number' : self.iteration_number}
+
+        with open(filename, 'w') as f:
+            pickle.dump(model, f)
+
+    def load(self, filename):
+        with open(filename) as f:
+            model = pickle.load(f)
+
+        self.alignment_scores = model['alignment_scores']
+        self.likelihood = model['likelihood']
+        self.iteration_number = model['iteration_number']
