@@ -392,7 +392,6 @@ class ViterbiEM(object):
         #self.logfile = open('em_log.txt','w')
         self.logfile = None
 
-
     def run_EM(self, max_iterations = 100):
         for iteration in range(max_iterations):
             self.iteration_number += 1
