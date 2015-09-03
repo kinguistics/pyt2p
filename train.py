@@ -8,17 +8,12 @@ import corpus
 #import viterbi
 from viterbi import ViterbiEM, ViterbiAligner
 
-'''
-    allow a maximum letter limit, to avoid wasting tons of time and memory on
-    words like "antidisestablishmentarianism"
-'''
-MAXIMUM_LETTERS = 22
 
 # window size for letter features
 WINDOW_SIZE = 7
 
 ### FUNCTIONS FOR ALIGNMENT ###
-def train_alignment(stress="none", subset=False):
+def train_alignment(stress="unstressed", subset=False):
     ### load the corpus and dict of allowables
     pronun_dict, allowables = corpus.load_corpus_and_allowables(stress=stress)
 
@@ -55,7 +50,7 @@ def train_alignment(stress="none", subset=False):
 
     return em
 
-def align_all_words(stress="none", subset=False):
+def align_all_words(stress="unstressed", subset=False):
     ### load the corpus and dict of allowables
     pronun_dict, allowables = corpus.load_corpus_and_allowables(stress=stress)
 
@@ -117,17 +112,6 @@ def load_latest_saved(model='.'):
     else:
         return None,None, None
 
-def convert_corpus(corpus):
-    """ convert a pronunciation dictionary like cmudict to a list of
-        (word, pronunciation) tuples """
-    ab_pairs = []
-    for word in corpus:
-        if len(word) > MAXIMUM_LETTERS:
-            continue
-        pronunciations = corpus[word]
-        for pronun in pronunciations:
-            ab_pairs.append((word, pronun))
-    return ab_pairs
 
 def convert_allowables(allowables):
     """ convert a dict of {letter: phone} allowables to a
@@ -154,7 +138,7 @@ def train_classifier(alignments, window_size=WINDOW_SIZE):
 if __name__ == "__main__":
     ### parse command-line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--stress', default='none', choices=['none','full','collapsed'])
+    parser.add_argument('--stress', default='unstressed', choices=['unstressed','stressed','binarystress'])
     parser.add_argument('--subset', action='store_true')
     args = parser.parse_args()
 

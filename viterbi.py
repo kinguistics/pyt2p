@@ -365,14 +365,13 @@ class ViterbiAligner(object):
         for row in grid[::-1]:
             print row
 
+
 class ViterbiEM(object):
-    """
-    NOTE: scores_are_costs=True is currently not implemented for EM
-    """
     def __init__(self, ab_pairs,
                        alignment_scores,
                        max_iterations=5,
-                       scores_are_costs=False):
+                       verbose=True,
+                       logging_filename=None):
         self.ab_pairs = ab_pairs
 
         ''' a list of alignment scores, starting with the initial parameter
@@ -380,17 +379,18 @@ class ViterbiEM(object):
         self.alignment_scores = [alignment_scores]
         self.max_iterations = max_iterations
 
-        self.scores_are_costs = scores_are_costs
-
         self.iteration_number = 0
+        self.likelihood = []
         self.converged = False
+
+        ### LOGGING
+        self.logfilename = 'em_log.txt'
+        self.verbose = verbose
+        self.logfile = None
+
 
         ### DEBUGGING
         self.pseudocounts = []
-        self.likelihood = []
-        self.logfilename = 'em_log.txt'
-        #self.logfile = open('em_log.txt','w')
-        self.logfile = None
 
     def run_EM(self, max_iterations = 100):
         for iteration in range(max_iterations):
@@ -426,10 +426,12 @@ class ViterbiEM(object):
         positions_to_log = len(self.ab_pairs) / 100
 
         for ab_idx,ab_pair in enumerate(self.ab_pairs):
-            if not ab_idx % positions_to_log:
-                self.logfile = open(self.logfilename, 'a')
-                self.logfile.write('\t'.join([str(s) for s in self.iteration_number, time(), ab_idx, ab_pair])+'\n')
-                self.logfile.close()
+            if self.verbose:
+                if not ab_idx % positions_to_log:
+                    self.logfile = open(self.logfilename, 'a')
+                    self.logfile.write('\t'.join([str(s) for s in self.iteration_number, time(), ab_idx, ab_pair])+'\n')
+                    self.logfile.close()
+
             a,b = ab_pair
 
             #print self.iteration_number,a,b
