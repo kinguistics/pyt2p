@@ -159,7 +159,7 @@ def test_allowable_deletion_probs(max_i=10, max_k=10):
                 print p, i, k
 
                 ab_subset = random.sample(ab_pairs, len(ab_pairs)/1000)
-                
+
                 alignments = []
                 counts = defaultdict(int)
                 for a,b in ab_subset:
@@ -195,9 +195,9 @@ def train_classifier(alignments, window_size=WINDOW_SIZE):
 
 if __name__ == "__main__":
 
-    all_counts = test_allowable_deletion_probs(10,10)
+    all_counts = test_allowable_deletion_probs(5,5)
     with open('all_test_counts.pickle','w') as f:
-        pickle.dump(all_counts)
+        pickle.dump(all_counts, f)
 
 '''
     ### parse command-line arguments
