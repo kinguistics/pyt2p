@@ -139,9 +139,9 @@ def test_allowable_deletion_probs(max_i=10, max_k=10):
 
     ab_pairs = load_dictionary()
     all_counts = {}
-    for p in p:
+    for p in ps:
         insert_prob = p
-        delete_prob = p
+        delete_prob = p/1000
 
         all_counts[(insert_prob, delete_prob)] = []
 
@@ -175,7 +175,7 @@ def test_allowable_deletion_probs(max_i=10, max_k=10):
                     alignments += paths
 
                 with open('%s-%s-%s.pickle' % (p,i,k),'w') as f:
-                    pickle.dump(alignments, f)
+                    pickle.dump([], f)
 
                 all_counts[(insert_prob, delete_prob)].append(counts)
 
@@ -183,6 +183,29 @@ def test_allowable_deletion_probs(max_i=10, max_k=10):
             os.remove('dictionary/cmudict-unstressed-subset/em_model.pickle')
 
     return all_counts
+
+def read_allowable_test(fname):
+    with open(fname) as f:
+        counts = pickle.load(f)
+
+    added = {}
+    for key in counts:
+        added[key] = defaultdict(int)
+        for testrun in counts[key]:
+            for countkey in testrun:
+                added[key][countkey] += testrun[countkey]
+
+    flattened = {}
+    for key in counts:
+        flattened[key] = []
+        for testrun in counts[key]:
+            for countkey in testrun:
+                ncount = testrun[countkey]
+                for i in range(ncount):
+                    flattened[key].append(countkey)
+
+    return added, flattened
+
 
 
 ### FUNCTIONS FOR CLASSIFIER ###
