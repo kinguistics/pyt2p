@@ -139,7 +139,7 @@ def test_allowable_deletion_probs(max_i=10, max_k=10):
 
     ab_pairs = load_dictionary()
     all_counts = {}
-    for p in p:
+    for p in ps:
         insert_prob = p
         delete_prob = p
 
