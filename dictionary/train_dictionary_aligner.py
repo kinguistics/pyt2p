@@ -135,11 +135,13 @@ def load_latest_saved(model='.'):
         return None,None, None
 
 def test_allowable_deletion_probs(max_i=10, max_k=10):
+    ps = [1.0, 0.5, 0.1, 0.05, 0.01]
+
     ab_pairs = load_dictionary()
     all_counts = {}
-    for p in [1.0, 0.5, 0.1, 0.05, 0.01]:
+    for p in p:
         insert_prob = p
-        delete_prob = p/10
+        delete_prob = p
 
         all_counts[(insert_prob, delete_prob)] = []
 
