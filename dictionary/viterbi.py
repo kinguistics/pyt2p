@@ -6,10 +6,12 @@ try:
 except ImportError:
     from math import log, exp, isinf
 
+from util import logAdd, logSum
+
 LOG_SCALED = True
 
 DEFAULT_GOOD_SCORE = 1
-DEFAULT_BAD_SCORE = 0.5
+DEFAULT_BAD_SCORE = 0.1
 DEFAULT_SCORE_COMBINATION = lambda x,y: x*y
 
 if LOG_SCALED:
@@ -18,22 +20,6 @@ if LOG_SCALED:
     DEFAULT_SCORE_COMBINATION = lambda x,y: x+y
 
 LIKELIHOOD_CHANGE_EPSILON = .001
-
-def logAdd(logX, logY):
-    # make logX the max of the wo
-    if logY > logX:
-        logX, logY = logY, logX
-
-    negDiff = logY - logX
-    #print negDiff
-    if negDiff < -20:
-        return logX
-
-    return (logX + log(1.0 + exp(negDiff)))
-
-def logSum(log_sequence):
-    return reduce(lambda x,y: logAdd(x,y), log_sequence)
-
 
 class ViterbiCell(object):
     """
@@ -140,7 +126,8 @@ class ViterbiPath(object):
         self.score = score
 
     def get_score(self):
-        return self.score
+        """ NOTE: currently assumes scores are log-transformed """
+        return self.score - log(len(self.cells)-1)
 
     def _get_cell_properties(self, what):
         """this method can probably just be moved into get_path_coordinates"""
@@ -296,6 +283,8 @@ class ViterbiAligner(object):
                         a_next_element = None
                         b_next_element = None
                         move_score = DEFAULT_BAD_SCORE
+                        # keep a flag for insert/delete so we can penalize
+                        insertion_or_deletion = False
 
                         if next_cell == diag_cell:
                             # eat from both
@@ -306,9 +295,11 @@ class ViterbiAligner(object):
                         if next_cell == delete_cell:
                             # eat from A only
                             a_next_element = cell_a_element
+                            insertion_or_deletion = True
                         if next_cell == insert_cell:
                             # eat from B only
                             b_next_element = cell_b_element
+                            insertion_or_deletion = True
 
                         # treat punctuation as whitespace
                         if a_next_element not in self.alignment_scores:
@@ -319,6 +310,8 @@ class ViterbiAligner(object):
                             # make sure it's an allowed move
                             try:
                                 move_score = self.alignment_scores[a_next_element][b_next_element]
+                                if insertion_or_deletion:
+                                    move_score += DEFAULT_BAD_SCORE
                             except KeyError:
                                 # can't make this move
                                 continue
@@ -497,6 +490,8 @@ class ViterbiEM(object):
                 path_score_scaled = path_score - word_total_score
 
                 for a_element, b_element in path_elements:
+                    if a_element not in self.alignment_scores[-1]:
+                        a_element = None
                     if a_element not in pseudocounts:
                         pseudocounts[a_element] = {}
 

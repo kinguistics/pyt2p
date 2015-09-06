@@ -1,28 +1,14 @@
 import csv
 from math import log, exp
 
+from util import logAdd, logSum
+
 BASE_DIRECTORY = 'dictionary'
 ALLOWABLES_FLABEL = 'allowables.csv'
 STRESS_OPTIONS = ['stressed','binarystress','unstressed']
 
-def logAdd(logX, logY):
-    # make logX the max of the wo
-    if logY > logX:
-        logX, logY = logY, logX
-
-    negDiff = logY - logX
-    #print negDiff
-    if negDiff < -20:
-        return logX
-
-    return (logX + log(1.0 + exp(negDiff)))
-
-def logSum(log_sequence):
-    return reduce(lambda x,y: logAdd(x,y), log_sequence)
-
 
 ### FUNCTIONS FOR LOADING ALLOWABLE LETTER-TO-PHONE MAPPINGS ###
-
 def load_allowables(pronun_dictionary='cmudict', stress='unstressed', delete_prob=0.01, insert_prob=0.01):
     if stress not in STRESS_OPTIONS:
         raise TypeError
