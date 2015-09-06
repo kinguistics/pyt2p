@@ -19,4 +19,4 @@
 ## the "meat" of the script
 
 #just print the name of this machine
-python dictionary/train_dictionary_aligner.py $*
+python pronouncer.py $*
