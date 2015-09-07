@@ -6,7 +6,7 @@ try:
 except ImportError:
     from math import log, exp, isinf
 
-from util import logAdd, logSum
+from alignment_util import logAdd, logSum
 
 LOG_SCALED = True
 

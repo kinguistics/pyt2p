@@ -5,17 +5,15 @@ import re
 import os
 from collections import defaultdict
 
-from dictionary import load_dictionary
+from pronunciations import load_pronunciations
 from allowables import load_allowables
 #import viterbi
 from viterbi import ViterbiEM, ViterbiAligner
 
-BASE_DIRECTORY = 'dictionary'
+BASE_DIRECTORY = 'model'
 EM_MODEL_FLABEL = 'em_model.pickle'
 ALIGNMENTS_FLABEL = 'alignments.pickle'
 
-# window size for letter features
-WINDOW_SIZE = 7
 
 ### FUNCTIONS FOR ALIGNMENT ###
 def train_alignment(corpus='cmudict',
@@ -25,7 +23,7 @@ def train_alignment(corpus='cmudict',
                     insert_prob=0.01,
                     kerberos_cmd=None):
     ### load the corpus and dict of allowables
-    ab_pairs = load_dictionary()
+    ab_pairs = load_pronunciations()
     alignment_scores = load_allowables(delete_prob=delete_prob,
                                        insert_prob=insert_prob)
 
@@ -63,7 +61,7 @@ def train_alignment(corpus='cmudict',
 
 def align_all_words(corpus='cmudict', stress="unstressed", subset=False):
     ### load the corpus and dict of allowables
-    ab_pairs = load_dictionary()
+    ab_pairs = load_pronunciations()
     #alignment_scores = load_allowables()
 
     # load the model
@@ -101,6 +99,18 @@ def align_all_words(corpus='cmudict', stress="unstressed", subset=False):
 
             alignments.append(path.get_elements())
 
+    save_alignments(alignments, corpus, stress, subset)
+
+def load_alignments(corpus='cmudict', stress='unstressed', subset=False):
+    alignments_fname = construct_alignments_fname(corpus, stress, subset)
+    with open(alignments_fname) as f:
+        alignments = pickle.load(f)
+    return alignments
+
+def save_alignments(alignments, corpus='cmudict', stress='unstressed', subset=False):
+    alignments_fname = construct_alignments_fname(corpus, stress, subset)
+    with open(alignments_fname,'w') as f:
+        alignments = pickle.dump(alignments, f)
     return alignments
 
 def construct_model_fname(corpus, stress, subset):
@@ -135,12 +145,3 @@ def count_nones_in_path(path):
             count += 1
 
     return count
-
-
-
-### FUNCTIONS FOR CLASSIFIER ###
-# currently we only support decision trees
-def train_classifier(alignments, window_size=WINDOW_SIZE):
-    raw_features, raw_targets = build_features(alignments, window_size)
-    classifier = None
-    return classifier

@@ -2,8 +2,8 @@ import argparse
 import pickle
 import glob
 
-from dictionary import *
-
+from alignment import *
+from classifier import *
 
 if __name__ == "__main__":
     ### parse command-line arguments
@@ -12,8 +12,13 @@ if __name__ == "__main__":
     ### what to do
     parser.add_argument('--train_alignment', action='store_true')
     parser.add_argument('--run_alignment', action='store_true')
+
     parser.add_argument('--train_classifier', action='store_true')
     parser.add_argument('--run_classifier', action='store_true')
+
+    parser.add_argument('--crossval_classifier', action='store_true')
+    parser.add_argument('--test_classifier_depth', action='store_true')
+
 
     ### general arguments
     parser.add_argument('--corpus', default='cmudict', choices=['cmudict'])
@@ -31,19 +36,33 @@ if __name__ == "__main__":
         kerberos_cmd = None
 
 
-    em_model_fname = training.construct_model_fname(corpus, stress, subset)
-    if args.train_alignment or not len(glob(em_model_fname)):
+    em_model_fname = alignment_training.construct_model_fname(args.corpus,
+                                                              args.stress,
+                                                              args.subset)
+    if args.train_alignment and not len(glob.glob(em_model_fname)):
         # train the ViterbiAligner model, saving each iteration as we go
         em = train_alignment(corpus=args.corpus,
-                            stress=args.stress,
-                            subset=args.subset,
-                            kerberos_cmd=kerberos_cmd)
+                             stress=args.stress,
+                             subset=args.subset,
+                             kerberos_cmd=kerberos_cmd)
 
-    alignments_fname = training.construct_alignments_fname(corpus, stress, subset)
-    if args.run_alignment and len(glob(em_model_fname)):
+    alignments_fname = alignment_training.construct_alignments_fname(args.corpus,
+                                                                     args.stress,
+                                                                     args.subset)
+    if args.run_alignment and len(glob.glob(em_model_fname)):
         # align all words
-        alignments = align_all_words(corpus=args.corpus,
-                                    stress=args.stress,
-                                    subset=args.subset)
-        with open(alignments_fname,'w') as fout:
-            pickle.dump(alignments, fout)
+        align_all_words(corpus=args.corpus,
+                        stress=args.stress,
+                        subset=args.subset)
+
+    if args.train_classifier and len(glob.glob(alignments_fname)):
+        alignments = load_alignments(args.corpus, args.stress, args.subset)
+        dtree = train_classifier(alignments)
+
+    if args.crossval_classifier and len(glob.glob(alignments_fname)):
+        alignments = load_alignments(args.corpus, args.stress, args.subset)
+        accuracies = crossval_classifier(alignments)
+        print accuracies
+
+    if args.test_classifier_depth and len(glob.glob(alignments_fnames)):
+        pass

@@ -3,7 +3,7 @@ import pickle
 
 from nltk.corpus import cmudict
 
-BASE_DIRECTORY = 'dictionary'
+BASE_DIRECTORY = 'model'
 CMUDICT_FNAME = '%s/cmudict.pickle' % BASE_DIRECTORY
 
 '''
@@ -16,7 +16,7 @@ MAXIMUM_LETTERS = 22
 STRESS_OPTIONS = ['stressed','binarystress','unstressed']
 
 
-def load_dictionary(pronun_dictionary_name='cmudict', stress='unstressed'):
+def load_pronunciations(pronun_dictionary_name='cmudict', stress='unstressed'):
     """ note that we only support cmudict from nltk """
     if stress not in STRESS_OPTIONS:
         raise TypeError
@@ -45,10 +45,10 @@ def load_dictionary(pronun_dictionary_name='cmudict', stress='unstressed'):
                 cmu_unstressed[word].append(pronun_unstressed)
         pronun_dictionary = cmu_unstressed
 
-    converted_dictionary = convert_dictionary(pronun_dictionary)
+    converted_dictionary = convert_pronunciations(pronun_dictionary)
     return converted_dictionary
 
-def convert_dictionary(pronun_dictionary):
+def convert_pronunciations(pronun_dictionary):
     """ convert a pronunciation dictionary like cmudict to a list of
         (word, pronunciation) tuples """
     ab_pairs = []

@@ -1,9 +1,13 @@
 import csv
-from math import log, exp
+try:
+    '''numpy's log provides more float precision'''
+    from numpy import log, exp, isinf
+except ImportError:
+    from math import log, exp, isinf
 
-from util import logAdd, logSum
+from alignment_util import logAdd, logSum
 
-BASE_DIRECTORY = 'dictionary'
+BASE_DIRECTORY = 'model'
 ALLOWABLES_FLABEL = 'allowables.csv'
 STRESS_OPTIONS = ['stressed','binarystress','unstressed']
 

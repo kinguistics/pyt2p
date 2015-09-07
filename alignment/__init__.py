@@ -4,6 +4,4 @@ Package documentation goes here.
 
 __version__ = "0.1-dev"
 
-from dictionary import load_dictionary
-from allowables import load_allowables
-from training import train_alignment, align_all_words
+from alignment_training import train_alignment, align_all_words, load_alignments
