@@ -12,6 +12,7 @@ from viterbi import ViterbiEM, ViterbiAligner
 
 BASE_DIRECTORY = 'dictionary'
 EM_MODEL_FLABEL = 'em_model.pickle'
+ALIGNMENTS_FLABEL = 'alignments.pickle'
 
 # window size for letter features
 WINDOW_SIZE = 7
@@ -60,7 +61,7 @@ def train_alignment(corpus='cmudict',
 
     return em
 
-def align_all_words(corpus='cmudict', stress="unstressed", subset=False, which_paths='best'):
+def align_all_words(corpus='cmudict', stress="unstressed", subset=False):
     ### load the corpus and dict of allowables
     ab_pairs = load_dictionary()
     #alignment_scores = load_allowables()
@@ -82,11 +83,9 @@ def align_all_words(corpus='cmudict', stress="unstressed", subset=False, which_p
     alignments = []
     for a,b in ab_pairs:
         v = ViterbiAligner(a, b, alignment_scores)
-        if which_paths == 'best':
-            paths = v.get_best_paths()
-        else:
-            paths = v.get_all_paths()
+        paths = v.get_best_paths()
         if not len(paths):
+            print "no path:",a,b
             continue
 
         # sort by number of insertions/deletions
@@ -105,12 +104,24 @@ def align_all_words(corpus='cmudict', stress="unstressed", subset=False, which_p
     return alignments
 
 def construct_model_fname(corpus, stress, subset):
-    model_directory = '%s/%s-%s' % (BASE_DIRECTORY, corpus, stress)
-    if subset:
-        model_directory = '%s-subset' % (model_directory)
+    model_directory = construct_model_directory(corpus, stress, subset)
     em_fname = '%s/%s' % (model_directory, EM_MODEL_FLABEL)
 
     return em_fname
+
+def construct_alignments_fname(corpus, stress, subset):
+    model_directory = construct_model_directory(corpus, stress, subset)
+    alignments_fname = '%s/%s' % (model_directory, ALIGNMENTS_FLABEL)
+
+    return alignments_fname
+
+def construct_model_directory(corpus, stress, subset):
+    model_directory = '%s/%s-%s' % (BASE_DIRECTORY, corpus, stress)
+    if subset:
+        model_directory = '%s-subset' % (model_directory)
+
+    return model_directory
+
 
 def count_nones_in_path(path):
     """ sometimes we get "equally good" alignments with a ton of inserted and
