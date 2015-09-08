@@ -62,6 +62,15 @@ if __name__ == "__main__":
         alignments = load_alignments(args.corpus, args.stress, args.subset)
         dtree = train_classifier(alignments, args.window_size, args.max_depth)
 
+        dtree_directory = 'model/%s-%s' % (args.corpus, args.stress)
+        if args.subset:
+            dtree_directory = '%s-subset' % dtree_directory
+        dtree_flabel = 'dtree_w%s_d%s.pickle' % (args.window_size, args.max_depth)
+        dtree_fname = '%s/%s' % (dtree_directory, dtree_flabel)
+
+        with open(dtree_fname, 'w') as f:
+            pickle.dump(dtree, dtree_fname)
+
     if args.crossval_classifier and len(glob.glob(alignments_fname)):
         alignments = load_alignments(args.corpus, args.stress, args.subset)
         confusion = crossval_classifier(alignments, args.window_size, args.nfolds, args.max_depth)
