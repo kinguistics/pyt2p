@@ -28,7 +28,7 @@ def sklearn_crossval(alignments, window_size=WINDOW_SIZE, nfolds=10):
     features_enc, targets_int = encode_alignments(alignments)
 
     dtree = tree.DecisionTreeClassifier()
-    accuracies = cross_val_score(dtree, features_enc, targets_int, cv=nfolds)
+    accuracies = cross_val_score(dtree, features_enc, targets_int, cv=nfolds, njobs=-1)
 
     return accuracies
 
@@ -63,7 +63,8 @@ def test_classifier_depth(alignments, window_size=WINDOW_SIZE, nfolds=10, max_de
         accuracies = cross_val_score(clf,
                                      features_enc,
                                      targets_int,
-                                     cv=10)
+                                     cv=10,
+                                     njobs=-1)
         t_after = time()
         duration = t_after - t_before
         avg_acc = np.mean(accuracies)
