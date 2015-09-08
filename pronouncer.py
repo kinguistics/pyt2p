@@ -19,6 +19,9 @@ if __name__ == "__main__":
     parser.add_argument('--crossval_classifier', action='store_true')
     parser.add_argument('--test_classifier_depth', action='store_true')
 
+    parser.add_argument('--max_depth', default=100)
+    parser.add_argument('--window_size', default=7)
+    parser.add_argument('--nfolds', default=10)
 
     ### general arguments
     parser.add_argument('--corpus', default='cmudict', choices=['cmudict'])
@@ -57,12 +60,12 @@ if __name__ == "__main__":
 
     if args.train_classifier and len(glob.glob(alignments_fname)):
         alignments = load_alignments(args.corpus, args.stress, args.subset)
-        dtree = train_classifier(alignments)
+        dtree = train_classifier(alignments, args.window_size, args.max_depth)
 
     if args.crossval_classifier and len(glob.glob(alignments_fname)):
         alignments = load_alignments(args.corpus, args.stress, args.subset)
-        accuracies = crossval_classifier(alignments)
-        print accuracies
+        confusion = crossval_classifier(alignments, args.window_size, args.nfolds, args.max_depth)
 
-    if args.test_classifier_depth and len(glob.glob(alignments_fnames)):
-        pass
+    if args.test_classifier_depth and len(glob.glob(alignments_fname)):
+        alignments = load_alignments(args.corpus, args.stress, args.subset)
+        test_classifier_depth(alignments, args.window_size, args.nfolds, args.max_depth)
