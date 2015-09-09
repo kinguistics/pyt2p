@@ -69,7 +69,7 @@ if __name__ == "__main__":
         dtree_fname = '%s/%s' % (dtree_directory, dtree_flabel)
 
         with open(dtree_fname, 'w') as f:
-            pickle.dump(dtree, dtree_fname)
+            pickle.dump(dtree, f)
 
     if args.crossval_classifier and len(glob.glob(alignments_fname)):
         alignments = load_alignments(args.corpus, args.stress, args.subset)

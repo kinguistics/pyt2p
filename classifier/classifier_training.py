@@ -28,7 +28,7 @@ def sklearn_crossval(alignments, window_size=WINDOW_SIZE, nfolds=10):
     features_enc, targets_int = encode_alignments(alignments)
 
     dtree = tree.DecisionTreeClassifier()
-    accuracies = cross_val_score(dtree, features_enc, targets_int, cv=nfolds, njobs=-1)
+    accuracies = cross_val_score(dtree, features_enc, targets_int, cv=nfolds, n_jobs=-1)
 
     return accuracies
 
@@ -49,39 +49,43 @@ def crossval_classifier(alignments, window_size=WINDOW_SIZE, nfolds=10, max_dept
     return accuracies
 
 def test_classifier_depth(alignments, window_size=WINDOW_SIZE, nfolds=10, max_depth=MAX_DEPTH):
-    fout = open('classifier/max_depth_crossval_tests.csv','w')
-    fwriter = csv.writer(fout)
-    headerout = ['max_depth','avg', 'time', 'size','depth'] + range(nfolds)
-    fwriter.writerow(headerout)
+    with open('classifier/max_depth_crossval_tests.csv','w') as fout:
+        fwriter = csv.writer(fout)
+        headerout = ['max_depth','avg', 'time', 'size','depth'] + range(nfolds)
+        fwriter.writerow(headerout)
 
     features_enc, targets_int = encode_alignments(alignments)
 
     for depth in range(0, max_depth, 5)[1:]:
         print "depth =", depth
-        clf = tree.DecisionTreeClassifier(max_depth=depth)
+        
+        # build a single tree to test depth and size
         t_before = time()
+        dtree = train_classifier(alignments, window_size, depth)
+        dtree_fname = 'classifier/depth_%s.pickle' % depth
+        t_after = time()
+        duration = t_after - t_before
+        
+        with open(dtree_fname,'w') as dtree_f:
+            pickle.dump(dtree, dtree_f)
+        
+        # run crossval
+        clf = tree.DecisionTreeClassifier(max_depth=depth)
         accuracies = cross_val_score(clf,
                                      features_enc,
                                      targets_int,
                                      cv=10,
-                                     njobs=-1)
-        t_after = time()
-        duration = t_after - t_before
+                                     n_jobs=-1)
         avg_acc = np.mean(accuracies)
         acc_list = list(accuracies)
 
-        dtree = train_classifier(alignments, window_size, depth)
-        dtree_fname = 'classifier/depth_%s.pickle' % depth
-        with open(dtree_fname,'w') as dtree_f:
-            pickle.dump(dtree, dtree_f)
         dtree_size = os.stat(dtree_fname).st_size
-
         calculated_depth = tree_depth(0, dtree.tree_)
-
-        rowout = [depth, avg_acc, duration, dtree_size, calculated_depth] + acc_list
-        fwriter.writerow(rowout)
-
-    fout.close()
+        
+        with open('classifier/max_depth_crossval_tests.csv','w') as fout:
+            fwriter = csv.writer(fout)
+            rowout = [depth, avg_acc, duration, dtree_size, calculated_depth] + acc_list
+            fwriter.writerow(rowout)
 
 def encode_alignments(alignments):
     features, targets = build_features(alignments)
