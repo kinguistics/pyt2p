@@ -82,7 +82,7 @@ def test_classifier_depth(alignments, window_size=WINDOW_SIZE, nfolds=10, max_de
         dtree_size = os.stat(dtree_fname).st_size
         calculated_depth = tree_depth(0, dtree.tree_)
         
-        with open('classifier/max_depth_crossval_tests.csv','w') as fout:
+        with open('classifier/max_depth_crossval_tests.csv','a') as fout:
             fwriter = csv.writer(fout)
             rowout = [depth, avg_acc, duration, dtree_size, calculated_depth] + acc_list
             fwriter.writerow(rowout)
