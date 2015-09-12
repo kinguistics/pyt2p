@@ -56,19 +56,19 @@ def test_classifier_depth(alignments, window_size=WINDOW_SIZE, nfolds=10, max_de
 
     features_enc, targets_int = encode_alignments(alignments)
 
-    for depth in range(0, max_depth, 5)[1:]:
+    for depth in range(26, 30):
         print "depth =", depth
-        
+
         # build a single tree to test depth and size
         t_before = time()
         dtree = train_classifier(alignments, window_size, depth)
         dtree_fname = 'classifier/depth_%s.pickle' % depth
         t_after = time()
         duration = t_after - t_before
-        
+
         with open(dtree_fname,'w') as dtree_f:
             pickle.dump(dtree, dtree_f)
-        
+
         # run crossval
         clf = tree.DecisionTreeClassifier(max_depth=depth)
         accuracies = cross_val_score(clf,
@@ -81,7 +81,7 @@ def test_classifier_depth(alignments, window_size=WINDOW_SIZE, nfolds=10, max_de
 
         dtree_size = os.stat(dtree_fname).st_size
         calculated_depth = tree_depth(0, dtree.tree_)
-        
+
         with open('classifier/max_depth_crossval_tests.csv','a') as fout:
             fwriter = csv.writer(fout)
             rowout = [depth, avg_acc, duration, dtree_size, calculated_depth] + acc_list
