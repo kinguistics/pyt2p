@@ -75,6 +75,10 @@ if __name__ == "__main__":
         alignments = load_alignments(args.corpus, args.stress, args.subset)
         confusion = crossval_classifier(alignments, args.window_size, args.nfolds, args.max_depth)
 
+        confusion_fname = 'classifier/%s-%s.pickle' % (args.corpus, args.max_depth)
+        with open(confusion_fname,'w') as f:
+            pickle.dump(confusion, f)
+
     if args.test_classifier_depth and len(glob.glob(alignments_fname)):
         alignments = load_alignments(args.corpus, args.stress, args.subset)
         test_classifier_depth(alignments, args.window_size, args.nfolds, args.max_depth)

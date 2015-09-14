@@ -37,16 +37,18 @@ def crossval_classifier(alignments, window_size=WINDOW_SIZE, nfolds=10, max_dept
     alignment_folds = step_through(alignments, nfolds)
 
     accuracies = []
+    confusions = []
     for fold in alignment_folds:
         train_fold, heldout_fold = fold
         train_dtree = train_classifier(train_fold, window_size)
 
         fold_confusion = test_classifier(train_dtree, heldout_fold)
+        confusions.append(fold_confusion)
 
         confusion_accuracy = calculate_confusion_accuracy(fold_confusion)
         accuracies.append(confusion_accuracy)
 
-    return accuracies
+    return confusions, accuracies
 
 def test_classifier_depth(alignments, window_size=WINDOW_SIZE, nfolds=10, max_depth=MAX_DEPTH):
     with open('classifier/max_depth_crossval_tests.csv','w') as fout:
