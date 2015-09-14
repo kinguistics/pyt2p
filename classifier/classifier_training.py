@@ -40,7 +40,7 @@ def crossval_classifier(alignments, window_size=WINDOW_SIZE, nfolds=10, max_dept
     confusions = []
     for fold in alignment_folds:
         train_fold, heldout_fold = fold
-        train_dtree = train_classifier(train_fold, window_size)
+        train_dtree = train_classifier(train_fold, window_size, max_depth)
 
         fold_confusion = test_classifier(train_dtree, heldout_fold)
         confusions.append(fold_confusion)
