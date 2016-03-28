@@ -39,6 +39,30 @@ def build_word_features(alignment, window_size=WINDOW_SIZE):
 
     return features, targets
 
+
+def build_unseen_word_features(letters, window_size=WINDOW_SIZE):
+    features = []
+
+    # convert str to list, or keep list as list
+    letters = [l for l in letters]
+
+    half_window = window_size / 2
+
+    for i in range(len(letters)):
+        this_features = []
+
+        for window_i in range(i-half_window,i+half_window+1):
+            if window_i < 0 or window_i >= len(letters):
+                letter = None
+            else:
+                letter = letters[window_i]
+            this_features.append(letter)
+
+        features.append(this_features)
+
+    return features
+
+
 def intify_features(features, targets):
     intified_features = []
     intified_targets = []
@@ -54,3 +78,15 @@ def intify_features(features, targets):
         intified_targets.append(target_intified)
 
     return intified_features, intified_targets
+
+
+def intify_unseen_word_features(word_features):
+    intified_features = []
+
+    for alignment_idx in range(len(word_features)):
+        feature = word_features[alignment_idx]
+
+        feature_intified = [letter_to_int(letter) for letter in feature]
+        intified_features.append(feature_intified)
+
+    return intified_features

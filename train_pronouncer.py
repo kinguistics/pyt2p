@@ -62,6 +62,7 @@ if __name__ == "__main__":
         alignments = load_alignments(args.corpus, args.stress, args.subset)
         dtree = train_classifier(alignments, args.window_size, args.max_depth)
 
+        # THIS DOESN'T DO SUBSET
         dtree_directory = 'model/%s-%s' % (args.corpus, args.stress)
         if args.subset:
             dtree_directory = '%s-subset' % dtree_directory
