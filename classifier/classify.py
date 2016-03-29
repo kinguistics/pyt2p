@@ -1,10 +1,11 @@
 import pickle
 import glob
+import re
 
 #import classifier_features
 from classifier_features import build_unseen_word_features, intify_unseen_word_features
 #import intifier
-from intifier import int_to_phone
+from intifier import int_to_phone, read_letters
 #import encoder
 from encoder import encode_features
 
@@ -20,12 +21,14 @@ SUBSET = False
 WINDOW_SIZE = 7
 DEPTH = 28
 
-
 CLASSIFIER = None
+SANITIZER_RE = None
 
 def classify(word):
     if CLASSIFIER is None:
         initialize_classifier()
+    
+    word = sanitize_input(word)
 
     word_features = build_unseen_word_features(word)
     word_ints = intify_unseen_word_features(word_features)
@@ -39,6 +42,23 @@ def classify(word):
 
     return predicted_phones
 
+def sanitize_input(word):
+    if SANITIZER_RE is None:
+        initialize_sanitizer()
+    
+    word = re.sub(SANITIZER_RE, '', word)
+    
+    return word
+
+def initialize_sanitizer():
+    l2i, i2l = read_letters(corpus=CORPUS, stress=STRESS)
+    
+    letters = [k for k in sorted(l2i.keys()) if k is not None]
+    acceptable_characters = ''.join(letters)
+    re_sub_str = '[^' + acceptable_characters + ']'
+    
+    global SANITIZER_RE
+    SANITIZER_RE = re_sub_str
 
 def initialize_classifier(corpus=CORPUS, stress=STRESS, subset=SUBSET,
                     window_size=WINDOW_SIZE, depth=DEPTH):
