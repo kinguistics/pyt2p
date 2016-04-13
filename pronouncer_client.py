@@ -1,7 +1,7 @@
 import socket
 
-HOST = 'localhost'
-PORT = 50000
+HOST = 'talkobamatome.com'
+PORT = 49999
 
 def request_pronunciation(word):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,3 +12,7 @@ def request_pronunciation(word):
     
     s.close()
     return eval(data)
+
+if __name__ == "__main__":
+    phones = request_pronunciation('blah')
+    print phones
