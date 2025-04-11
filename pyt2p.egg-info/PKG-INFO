@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: pyt2p
+Version: 0.1.0
+Summary: Python code for training and applying text-to-phoneme models
+Home-page: https://github.com/kinguistics/pyt2p
+Author: Ed King
+Author-email: etking@alumni.stanford.edu
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Dist: scikit-learn
+Requires-Dist: numpy
+Requires-Dist: nltk
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: summary
